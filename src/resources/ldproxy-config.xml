@@ -1,0 +1,5 @@
+<LDProxy>
+    <site match="http(s)?://purl.org/dc/terms/(?&lt;term&gt;.*)" recipe="nl.clariah.ldproxy.recipe.Cat">
+        <file src="src/resources/dc.xml" mime="application/rdf+xml"/>
+    </site>
+</LDProxy>
