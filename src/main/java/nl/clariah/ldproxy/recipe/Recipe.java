@@ -1,6 +1,7 @@
 package nl.clariah.ldproxy.recipe;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.util.regex.Matcher;
 import net.sf.saxon.s9api.XdmItem;
 
@@ -12,6 +13,6 @@ abstract public class Recipe {
         this.config = config;
     }
     
-    abstract public BufferedReader handle(Matcher site);
+    abstract public BufferedReader handle(BufferedWriter client, Matcher site);
     
 }

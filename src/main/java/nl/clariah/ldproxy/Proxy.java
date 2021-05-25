@@ -140,13 +140,15 @@ public class Proxy implements Runnable{
 
 				for (XdmItem s:Saxon.xpathList(conf, "/LDProxy/site")) {
 					if (Saxon.hasAttribute(s, "match")) {
-						Pattern p = Pattern.compile(Saxon.xpath2string(s, "@match"));
+                                                String  m =  Saxon.xpath2string(s, "@match");
+						Pattern p = Pattern.compile(m);
 
 						if (Saxon.hasAttribute(s, "recipe")) {
-							Class<Recipe> clazz = (Class<Recipe>) Class.forName(Saxon.xpath2string(s, "@recipe"));
-                    		Recipe r = clazz.newInstance();
+                                                        String c = Saxon.xpath2string(s, "@recipe");
+							Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
+                                                        Recipe r = clazz.newInstance();
 							r.init(s);
-
+							System.out.println("!DBG: site["+m+"] recipe["+c+"]");
 							this.ldsites.put(p,r);
 						} else {
 							System.out.println("!ERR: site misses a recipe attribute!");

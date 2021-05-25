@@ -20,6 +20,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -135,22 +137,20 @@ public class RequestHandler implements Runnable {
 						try {
 							Recipe r = Proxy.ldsites.get(p);
 							System.out.println("LD Recipe["+r.getClass()+"] found for : " + urlString + "\n");
-							BufferedReader reader = r.handle(m);
-							String response = "HTTP/1.0 200 OK\n" +
-							"Proxy-agent: LDProxyServer/1.0\n" +
-							"\r\n";
-							proxyToClientBw.write(response);
-							proxyToClientBw.flush();
-
-							String line;
-							while((line = reader.readLine()) != null){
-								proxyToClientBw.write(line);
-							}
-							proxyToClientBw.flush();
-							
-							// Close resources
+							BufferedReader reader = r.handle(proxyToClientBw,m);
 							if(reader != null){
-								reader.close();
+                                                            String response = "HTTP/1.0 200 OK\n" +
+                                                            "Proxy-agent: LDProxyServer/1.0\n" +
+                                                            "\r\n";
+                                                            proxyToClientBw.write(response);
+                                                            proxyToClientBw.flush();
+                                                            String line;
+                                                            while((line = reader.readLine()) != null){
+                                                                    proxyToClientBw.write(line);
+                                                            }
+                                                            proxyToClientBw.flush();
+                                                            // Close resources
+                                                            reader.close();
 							}	
 							break;
 						} catch (IOException e) {
@@ -162,7 +162,15 @@ public class RequestHandler implements Runnable {
 				if (m==null || !m.matches()) {
 					System.out.println("HTTP GET for : " + urlString + "\n");
 					sendNonCachedToClient(urlString);
-				}
+				} else {
+                                    if (proxyToClientBw != null){
+                                        try {
+                                            proxyToClientBw.close();
+                                        } catch (IOException ex) {
+                                            System.err.println("!ERR: couldn't close connection to client: "+ex.getMessage());
+                                        }
+                                    }
+                                }
 			}
 		}
 	} 
