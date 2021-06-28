@@ -88,10 +88,14 @@ public class RequestHandler implements Runnable {
                     System.out.println("Error reading request from client");
                     return;
             }
+            if (requestString == null) {
+                    System.out.println("NULL request from client");
+                    return;
+            }
 
             // Parse out URL
 
-            System.out.println("Reuest Received " + requestString);
+            System.out.println("Request Received " + requestString);
             // Get the Request type
             String request = requestString.substring(0,requestString.indexOf(' '));
 
