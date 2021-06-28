@@ -124,7 +124,7 @@ public class RequestHandler implements Runnable {
                                         BufferedReader reader = r.handle(proxyToClientBw,m);
                                         if(reader != null){
                                             String response = "HTTP/1.0 200 OK\n" +
-                                            "Proxy-agent: LDProxyServer/1.0\n" +
+                                            "Proxy-agent: LDProxy/1.0\n" +
                                             "\r\n";
                                             proxyToClientBw.write(response);
                                             proxyToClientBw.flush();
@@ -192,7 +192,7 @@ public class RequestHandler implements Runnable {
 				if(image != null) {
 					// Send response code to client
 					String line = "HTTP/1.0 200 OK\n" +
-							"Proxy-agent: ProxyServer/1.0\n" +
+							"Proxy-agent: LDProxy/1.0\n" +
 							"\r\n";
 					proxyToClientBw.write(line);
 					proxyToClientBw.flush();
@@ -204,7 +204,7 @@ public class RequestHandler implements Runnable {
 				} else {
 					System.out.println("Sending 404 to client as image wasn't received from server");
 					String error = "HTTP/1.0 404 NOT FOUND\n" +
-							"Proxy-agent: ProxyServer/1.0\n" +
+							"Proxy-agent: LDProxy/1.0\n" +
 							"\r\n";
 					proxyToClientBw.write(error);
 					proxyToClientBw.flush();
@@ -231,7 +231,7 @@ public class RequestHandler implements Runnable {
 
 				// Send success code to client
 				String line = "HTTP/1.0 200 OK\n" +
-						"Proxy-agent: ProxyServer/1.0\n" +
+						"Proxy-agent: LDProxy/1.0\n" +
 						"\r\n";
 				proxyToClientBw.write(line);
 				
@@ -292,7 +292,7 @@ public class RequestHandler implements Runnable {
 
 			// Send Connection established to the client
 			String line = "HTTP/1.0 200 Connection established\r\n" +
-					"Proxy-Agent: ProxyServer/1.0\r\n" +
+					"Proxy-Agent: LDProxy/1.0\r\n" +
 					"\r\n";
 			proxyToClientBw.write(line);
 			proxyToClientBw.flush();
@@ -361,7 +361,7 @@ public class RequestHandler implements Runnable {
 			
 		} catch (SocketTimeoutException e) {
 			String line = "HTTP/1.0 504 Timeout Occured after 10s\n" +
-					"User-Agent: ProxyServer/1.0\n" +
+					"User-Agent: LDProxy/1.0\n" +
 					"\r\n";
 			try{
 				proxyToClientBw.write(line);
