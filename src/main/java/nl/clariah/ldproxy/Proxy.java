@@ -103,13 +103,13 @@ public class Proxy implements Runnable{
 							Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
                                                         Recipe r = clazz.newInstance();
 							r.init(s);
-							System.out.println("!DBG: site["+m+"] recipe["+c+"]");
+							System.err.println("!DBG: site["+m+"] recipe["+c+"]");
 							this.ldsites.put(p,r);
 						} else {
-							System.out.println("!ERR: site misses a recipe attribute!");
+							System.err.println("!ERR: site["+m+"] misses a recipe attribute!");
 						}
 					} else {
-						System.out.println("!ERR: site misses a match attribute!");
+						System.err.println("!ERR: site misses a match attribute!");
 					}
 				}
 
@@ -126,20 +126,20 @@ public class Proxy implements Runnable{
 
 			// Set the timeout
 			//serverSocket.setSoTimeout(100000);	// debug
-			System.out.println("Waiting for client on port " + serverSocket.getLocalPort() + "..");
+			System.err.println("?DBG: Waiting for client on port " + serverSocket.getLocalPort() + "..");
 			running = true;
 		} 
 
 		// Catch exceptions associated with opening socket
 		catch (SocketException se) {
-			System.out.println("Socket Exception when connecting to client");
-			se.printStackTrace();
+			System.err.println("!ERR: Socket Exception when connecting to client: "+se.getMessage());
+			se.printStackTrace(System.err);
 		}
 		catch (SocketTimeoutException ste) {
-			System.out.println("Timeout occured while connecting to client");
+			System.err.println("!ERR: Timeout occured while connecting to client: "+ste.getMessage());
 		} 
 		catch (IOException io) {
-			System.out.println("IO exception when connecting to client");
+			System.err.println("!ERR: IO exception when connecting to client: "+io.getMessage());
 		}
 	}
 
@@ -173,8 +173,7 @@ public class Proxy implements Runnable{
 
 
 	/**
-	 * Saves the blocked and cached sites to a file so they can be re loaded at a later time.
-	 * Also joins all of the RequestHandler threads currently servicing requests.
+	 * Joins all of the RequestHandler threads currently servicing requests.
 	 */
 	private void closeServer(){
 		System.out.println("\nClosing Server..");
@@ -198,19 +197,16 @@ public class Proxy implements Runnable{
 				System.out.println("Terminating Connection");
 				serverSocket.close();
 			} catch (Exception e) {
-				System.out.println("Exception closing proxy's server socket");
-				e.printStackTrace();
+				System.err.println("!ERR: Exception closing proxy's server socket: "+e.getMessage());
+				e.printStackTrace(System.err);
 			}
 
 		}
 
 
 		/**
-		 * Creates a management interface which can dynamically update the proxy configurations
-		 * 		blocked : Lists currently blocked sites
-		 *  	cached	: Lists currently cached sites
-		 *  	close	: Closes the proxy server
-		 *  	*		: Adds * to the list of blocked sites
+		 * Creates a management interface
+                 *  	close	: Closes the proxy server
 		 */
 		@Override
 		public void run() {

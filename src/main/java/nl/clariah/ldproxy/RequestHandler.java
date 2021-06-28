@@ -84,18 +84,18 @@ public class RequestHandler implements Runnable {
             try{
                     requestString = proxyToClientBr.readLine();
             } catch (IOException e) {
-                    e.printStackTrace();
-                    System.out.println("Error reading request from client");
+                    System.err.println("!ERR: reading request from client: "+e.getMessage());
+                    e.printStackTrace(System.err);
                     return;
             }
             if (requestString == null) {
-                    System.out.println("NULL request from client");
+                    System.err.println("!ERR: NULL request from client");
                     return;
             }
 
             // Parse out URL
 
-            System.out.println("Request Received " + requestString);
+            System.err.println("?DBG: Request Received " + requestString);
             // Get the Request type
             String request = requestString.substring(0,requestString.indexOf(' '));
 
@@ -114,17 +114,17 @@ public class RequestHandler implements Runnable {
 
             // Check request type
             if(request.equals("CONNECT")){
-                    System.out.println("HTTPS Request for : " + urlString + "\n");
+                    System.err.println("?DBG: HTTPS Request for : " + urlString + "\n");
                     handleHTTPSRequest(urlString);
             } else {
                 Matcher m = null;
                 for (Pattern p:Proxy.ldsites.keySet()) {
-                        System.out.println("DBG: site["+p+"]~["+urlString+"]? ");
+                        System.err.println("?DBG: site["+p+"]~["+urlString+"]? ");
                         m = p.matcher(urlString);
                         if (m.matches()) {
                                 try {
                                         Recipe r = Proxy.ldsites.get(p);
-                                        System.out.println("LD Recipe["+r.getClass()+"] found for : " + urlString + "\n");
+                                        System.err.println("?DBG: LD Recipe["+r.getClass()+"] found for : " + urlString + "\n");
                                         BufferedReader reader = r.handle(proxyToClientBw,m);
                                         if(reader != null){
                                             String response = "HTTP/1.0 200 OK\n" +
@@ -142,13 +142,13 @@ public class RequestHandler implements Runnable {
                                         }	
                                         break;
                                 } catch (IOException e) {
-                                        System.out.println("Error Sending LD recipe output file to client");
-                                        e.printStackTrace();
+                                        System.err.println("!ERR: Sending LD recipe output file to client: "+e.getMessage());
+                                        e.printStackTrace(System.err);
                                 }
                         }
                 }
                 if (m==null || !m.matches()) {
-                        System.out.println("HTTP GET for : " + urlString + "\n");
+                        System.err.println("?DBG: HTTP GET for : " + urlString + "\n");
                         sendNonCachedToClient(urlString);
                 } else {
                     if (proxyToClientBw != null){
@@ -156,6 +156,7 @@ public class RequestHandler implements Runnable {
                             proxyToClientBw.close();
                         } catch (IOException ex) {
                             System.err.println("!ERR: couldn't close connection to client: "+ex.getMessage());
+                            ex.printStackTrace(System.err);
                         }
                     }
                 }
