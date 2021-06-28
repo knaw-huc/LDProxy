@@ -79,175 +79,89 @@ public class RequestHandler implements Runnable {
 	@Override
 	public void run() {
 
-		// Get Request from client
-		String requestString;
-		try{
-			requestString = proxyToClientBr.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("Error reading request from client");
-			return;
-		}
+            // Get Request from client
+            String requestString;
+            try{
+                    requestString = proxyToClientBr.readLine();
+            } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error reading request from client");
+                    return;
+            }
 
-		// Parse out URL
+            // Parse out URL
 
-		System.out.println("Reuest Received " + requestString);
-		// Get the Request type
-		String request = requestString.substring(0,requestString.indexOf(' '));
+            System.out.println("Reuest Received " + requestString);
+            // Get the Request type
+            String request = requestString.substring(0,requestString.indexOf(' '));
 
-		// remove request type and space
-		String urlString = requestString.substring(requestString.indexOf(' ')+1);
+            // remove request type and space
+            String urlString = requestString.substring(requestString.indexOf(' ')+1);
 
-		// Remove everything past next space
-		urlString = urlString.substring(0, urlString.indexOf(' '));
+            // Remove everything past next space
+            urlString = urlString.substring(0, urlString.indexOf(' '));
 
-		// Prepend http:// if necessary to create correct URL
-		if(!urlString.substring(0,4).equals("http")){
-			String temp = "http://";
-			urlString = temp + urlString;
-		}
-
-
-		// Check if site is blocked
-		if(Proxy.isBlocked(urlString)){
-			System.out.println("Blocked site requested : " + urlString);
-			blockedSiteRequested();
-			return;
-		}
+            // Prepend http:// if necessary to create correct URL
+            if(!urlString.substring(0,4).equals("http")){
+                    String temp = "http://";
+                    urlString = temp + urlString;
+            }
 
 
-		// Check request type
-		if(request.equals("CONNECT")){
-			System.out.println("HTTPS Request for : " + urlString + "\n");
-			handleHTTPSRequest(urlString);
-		} 
-
-		else{
-			// Check if we have a cached copy
-			File file;
-			if((file = Proxy.getCachedPage(urlString)) != null){
-				System.out.println("Cached Copy found for : " + urlString + "\n");
-				sendCachedPageToClient(file);
-			} else {
-				Matcher m = null;
-				for (Pattern p:Proxy.ldsites.keySet()) {
-					System.out.println("DBG: site["+p+"]~["+urlString+"]? ");
-					m = p.matcher(urlString);
-					if (m.matches()) {
-						try {
-							Recipe r = Proxy.ldsites.get(p);
-							System.out.println("LD Recipe["+r.getClass()+"] found for : " + urlString + "\n");
-							BufferedReader reader = r.handle(proxyToClientBw,m);
-							if(reader != null){
-                                                            String response = "HTTP/1.0 200 OK\n" +
-                                                            "Proxy-agent: LDProxyServer/1.0\n" +
-                                                            "\r\n";
-                                                            proxyToClientBw.write(response);
-                                                            proxyToClientBw.flush();
-                                                            String line;
-                                                            while((line = reader.readLine()) != null){
-                                                                    proxyToClientBw.write(line);
-                                                            }
-                                                            proxyToClientBw.flush();
-                                                            // Close resources
-                                                            reader.close();
-							}	
-							break;
-						} catch (IOException e) {
-							System.out.println("Error Sending LD recipe output file to client");
-							e.printStackTrace();
-						}
-					}
-				}
-				if (m==null || !m.matches()) {
-					System.out.println("HTTP GET for : " + urlString + "\n");
-					sendNonCachedToClient(urlString);
-				} else {
-                                    if (proxyToClientBw != null){
-                                        try {
-                                            proxyToClientBw.close();
-                                        } catch (IOException ex) {
-                                            System.err.println("!ERR: couldn't close connection to client: "+ex.getMessage());
-                                        }
-                                    }
+            // Check request type
+            if(request.equals("CONNECT")){
+                    System.out.println("HTTPS Request for : " + urlString + "\n");
+                    handleHTTPSRequest(urlString);
+            } else {
+                Matcher m = null;
+                for (Pattern p:Proxy.ldsites.keySet()) {
+                        System.out.println("DBG: site["+p+"]~["+urlString+"]? ");
+                        m = p.matcher(urlString);
+                        if (m.matches()) {
+                                try {
+                                        Recipe r = Proxy.ldsites.get(p);
+                                        System.out.println("LD Recipe["+r.getClass()+"] found for : " + urlString + "\n");
+                                        BufferedReader reader = r.handle(proxyToClientBw,m);
+                                        if(reader != null){
+                                            String response = "HTTP/1.0 200 OK\n" +
+                                            "Proxy-agent: LDProxyServer/1.0\n" +
+                                            "\r\n";
+                                            proxyToClientBw.write(response);
+                                            proxyToClientBw.flush();
+                                            String line;
+                                            while((line = reader.readLine()) != null){
+                                                    proxyToClientBw.write(line);
+                                            }
+                                            proxyToClientBw.flush();
+                                            // Close resources
+                                            reader.close();
+                                        }	
+                                        break;
+                                } catch (IOException e) {
+                                        System.out.println("Error Sending LD recipe output file to client");
+                                        e.printStackTrace();
                                 }
-			}
-		}
+                        }
+                }
+                if (m==null || !m.matches()) {
+                        System.out.println("HTTP GET for : " + urlString + "\n");
+                        sendNonCachedToClient(urlString);
+                } else {
+                    if (proxyToClientBw != null){
+                        try {
+                            proxyToClientBw.close();
+                        } catch (IOException ex) {
+                            System.err.println("!ERR: couldn't close connection to client: "+ex.getMessage());
+                        }
+                    }
+                }
+            }
 	} 
 
 
 	/**
-	 * Sends the specified cached file to the client
-	 * @param cachedFile The file to be sent (can be image/text)
-	 */
-	private void sendCachedPageToClient(File cachedFile){
-		// Read from File containing cached web page
-		try{
-			// If file is an image write data to client using buffered image.
-			String fileExtension = cachedFile.getName().substring(cachedFile.getName().lastIndexOf('.'));
-			
-			// Response that will be sent to the server
-			String response;
-			if((fileExtension.contains(".png")) || fileExtension.contains(".jpg") ||
-					fileExtension.contains(".jpeg") || fileExtension.contains(".gif")){
-				// Read in image from storage
-				BufferedImage image = ImageIO.read(cachedFile);
-				
-				if(image == null ){
-					System.out.println("Image " + cachedFile.getName() + " was null");
-					response = "HTTP/1.0 404 NOT FOUND \n" +
-							"Proxy-agent: ProxyServer/1.0\n" +
-							"\r\n";
-					proxyToClientBw.write(response);
-					proxyToClientBw.flush();
-				} else {
-					response = "HTTP/1.0 200 OK\n" +
-							"Proxy-agent: ProxyServer/1.0\n" +
-							"\r\n";
-					proxyToClientBw.write(response);
-					proxyToClientBw.flush();
-					ImageIO.write(image, fileExtension.substring(1), clientSocket.getOutputStream());
-				}
-			} 
-			
-			// Standard text based file requested
-			else {
-				BufferedReader cachedFileBufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(cachedFile)));
-
-				response = "HTTP/1.0 200 OK\n" +
-						"Proxy-agent: ProxyServer/1.0\n" +
-						"\r\n";
-				proxyToClientBw.write(response);
-				proxyToClientBw.flush();
-
-				String line;
-				while((line = cachedFileBufferedReader.readLine()) != null){
-					proxyToClientBw.write(line);
-				}
-				proxyToClientBw.flush();
-				
-				// Close resources
-				if(cachedFileBufferedReader != null){
-					cachedFileBufferedReader.close();
-				}	
-			}
-
-
-			// Close Down Resources
-			if(proxyToClientBw != null){
-				proxyToClientBw.close();
-			}
-
-		} catch (IOException e) {
-			System.out.println("Error Sending Cached file to client");
-			e.printStackTrace();
-		}
-	}
-
-
-	/**
 	 * Sends the contents of the file specified by the urlString to the client
-	 * @param urlString URL ofthe file requested
+	 * @param urlString URL of the file requested
 	 */
 	private void sendNonCachedToClient(String urlString){
 
@@ -261,55 +175,12 @@ public class RequestHandler implements Runnable {
 			// Get the type of file
 			fileExtension = urlString.substring(fileExtensionIndex, urlString.length());
 
-			// Get the initial file name
-			String fileName = urlString.substring(0,fileExtensionIndex);
-
-
-			// Trim off http://www. as no need for it in file name
-			fileName = fileName.substring(fileName.indexOf('.')+1);
-
-			// Remove any illegal characters from file name
-			fileName = fileName.replace("/", "__");
-			fileName = fileName.replace('.','_');
-			
 			// Trailing / result in index.html of that directory being fetched
 			if(fileExtension.contains("/")){
 				fileExtension = fileExtension.replace("/", "__");
 				fileExtension = fileExtension.replace('.','_');
 				fileExtension += ".html";
 			}
-		
-			fileName = fileName + fileExtension;
-
-
-
-			// Attempt to create File to cache to
-			boolean caching = true;
-			File fileToCache = null;
-			BufferedWriter fileToCacheBW = null;
-
-			try{
-				// Create File to cache 
-				fileToCache = new File("cached/" + fileName);
-
-				if(!fileToCache.exists()){
-					fileToCache.createNewFile();
-				}
-
-				// Create Buffered output stream to write to cached copy of file
-				fileToCacheBW = new BufferedWriter(new FileWriter(fileToCache));
-			}
-			catch (IOException e){
-				System.out.println("Couldn't cache: " + fileName);
-				caching = false;
-				e.printStackTrace();
-			} catch (NullPointerException e) {
-				System.out.println("NPE opening file");
-			}
-
-
-
-
 
 			// Check if file is an image
 			if((fileExtension.contains(".png")) || fileExtension.contains(".jpg") ||
@@ -319,9 +190,6 @@ public class RequestHandler implements Runnable {
 				BufferedImage image = ImageIO.read(remoteURL);
 
 				if(image != null) {
-					// Cache the image to disk
-					ImageIO.write(image, fileExtension.substring(1), fileToCache);
-
 					// Send response code to client
 					String line = "HTTP/1.0 200 OK\n" +
 							"Proxy-agent: ProxyServer/1.0\n" +
@@ -334,8 +202,7 @@ public class RequestHandler implements Runnable {
 
 				// No image received from remote server
 				} else {
-					System.out.println("Sending 404 to client as image wasn't received from server"
-							+ fileName);
+					System.out.println("Sending 404 to client as image wasn't received from server");
 					String error = "HTTP/1.0 404 NOT FOUND\n" +
 							"Proxy-agent: ProxyServer/1.0\n" +
 							"\r\n";
@@ -374,10 +241,6 @@ public class RequestHandler implements Runnable {
 					// Send on data to client
 					proxyToClientBw.write(line);
 
-					// Write to our cached copy of the file
-					if(caching){
-						fileToCacheBW.write(line);
-					}
 				}
 				
 				// Ensure all data is sent by this point
@@ -390,16 +253,6 @@ public class RequestHandler implements Runnable {
 			}
 
 
-			if(caching){
-				// Ensure data written and add to our cached hash maps
-				fileToCacheBW.flush();
-				Proxy.addCachedPage(urlString, fileToCache);
-			}
-
-			// Close down resources
-			if(fileToCacheBW != null){
-				fileToCacheBW.close();
-			}
 
 			if(proxyToClientBw != null){
 				proxyToClientBw.close();
@@ -574,23 +427,6 @@ public class RequestHandler implements Runnable {
 	}
 
 	
-	/**
-	 * This method is called when user requests a page that is blocked by the proxy.
-	 * Sends an access forbidden message back to the client
-	 */
-	private void blockedSiteRequested(){
-		try {
-			BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-			String line = "HTTP/1.0 403 Access Forbidden \n" +
-					"User-Agent: ProxyServer/1.0\n" +
-					"\r\n";
-			bufferedWriter.write(line);
-			bufferedWriter.flush();
-		} catch (IOException e) {
-			System.out.println("Error writing to client when requested a blocked site");
-			e.printStackTrace();
-		}
-	}
 }
 
 
