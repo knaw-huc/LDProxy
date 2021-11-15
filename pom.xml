@@ -12,7 +12,7 @@
     <properties>
         <!--version numbers-->
         <jdk.version>1.8</jdk.version>
-        <maven-compiler.version>3.5.1</maven-compiler.version>
+        <maven-compiler.version>3.7.0</maven-compiler.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
@@ -75,6 +75,14 @@
                     </execution>
                 </executions>
             </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <source>9</source>
+              <target>9</target>
+            </configuration>
+          </plugin>
         </plugins>
     </build>
 
