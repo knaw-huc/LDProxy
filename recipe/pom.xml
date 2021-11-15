@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>nl.clariah</groupId>
-    <artifactId>ldproxy</artifactId>
+    <artifactId>recipe</artifactId>
     <packaging>jar</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>CLARIAH LD Proxy</name>
+    <name>CLARIAH recipe</name>
 
     <properties>
         <!--version numbers-->
@@ -24,11 +24,6 @@
             <type>jar</type>
         </dependency>
     </dependencies>
-
-    <modules>
-      <module>ldproxy</module>
-      <module>recipe</module>
-    </modules>
 
     <build>
         <plugins>

@@ -25,11 +25,6 @@
         </dependency>
     </dependencies>
 
-    <modules>
-      <module>ldproxy</module>
-      <module>recipe</module>
-    </modules>
-
     <build>
         <plugins>
             <plugin>
