@@ -1,4 +1,4 @@
-package nl.clariah.ldproxy.recipe;
+package nl.clariah.recipe;
 
 
 import java.io.BufferedReader;
@@ -12,7 +12,7 @@ import net.sf.saxon.s9api.XdmAtomicValue;
 import net.sf.saxon.s9api.XdmValue;
 import nl.mpi.tla.util.Saxon;
 
-public class Redirect extends nl.clariah.ldproxy.recipe.Recipe {
+public class Redirect extends nl.clariah.recipe.Recipe {
 
     @Override
     public BufferedReader handle(BufferedWriter client,Matcher site) {

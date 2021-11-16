@@ -1,4 +1,4 @@
-package nl.clariah.ldproxy.recipe;
+package nl.clariah.recipe;
 
 
 import java.io.BufferedReader;
@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import net.sf.saxon.s9api.XdmItem;
 import nl.mpi.tla.util.Saxon;
 
-public class Cat extends nl.clariah.ldproxy.recipe.Recipe {
+public class Cat extends nl.clariah.recipe.Recipe {
 
     @Override
     public BufferedReader handle(BufferedWriter client,Matcher site) {

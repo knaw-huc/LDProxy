@@ -1,4 +1,4 @@
-package nl.clariah.ldproxy.recipe;
+package nl.clariah.recipe;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
