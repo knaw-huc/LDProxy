@@ -1,16 +1,16 @@
 package nl.clariah.recipe;
 
 
+import net.sf.saxon.s9api.XdmAtomicValue;
+import net.sf.saxon.s9api.XdmValue;
+import nl.mpi.tla.util.Saxon;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
-import net.sf.saxon.s9api.XdmAtomicValue;
-import net.sf.saxon.s9api.XdmValue;
-import nl.mpi.tla.util.Saxon;
 
 public class Redirect extends nl.clariah.recipe.Recipe {
 
@@ -48,4 +48,9 @@ public class Redirect extends nl.clariah.recipe.Recipe {
         }
         return null;
     }
+
+    public static void main() {
+
+    }
+
 }

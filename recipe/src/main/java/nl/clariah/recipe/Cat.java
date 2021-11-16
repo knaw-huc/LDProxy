@@ -1,14 +1,14 @@
 package nl.clariah.recipe;
 
 
+import nl.mpi.tla.util.Saxon;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
-import net.sf.saxon.s9api.XdmItem;
-import nl.mpi.tla.util.Saxon;
 
 public class Cat extends nl.clariah.recipe.Recipe {
 
@@ -23,5 +23,5 @@ public class Cat extends nl.clariah.recipe.Recipe {
         }
         return res;
     }
-    
+
 }
