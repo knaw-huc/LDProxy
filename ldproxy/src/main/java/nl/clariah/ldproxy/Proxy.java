@@ -4,6 +4,12 @@
 
 package nl.clariah.ldproxy;
 
+import net.sf.saxon.s9api.XdmItem;
+import net.sf.saxon.s9api.XdmNode;
+import nl.clariah.recipe.Recipe;
+import nl.mpi.tla.util.Saxon;
+
+import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -13,12 +19,8 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.ServiceLoader;
 import java.util.regex.Pattern;
-import javax.xml.transform.stream.StreamSource;
-import net.sf.saxon.s9api.XdmItem;
-import net.sf.saxon.s9api.XdmNode;
-import nl.clariah.ldproxy.recipe.Recipe;
-import nl.mpi.tla.util.Saxon;
 
 
 /**
@@ -95,9 +97,10 @@ public class Proxy implements Runnable{
 						Pattern p = Pattern.compile(m);
 
 						if (Saxon.hasAttribute(s, "recipe")) {
-                                                        String c = Saxon.xpath2string(s, "@recipe");
+              String c = Saxon.xpath2string(s, "@recipe");
+							ServiceLoader<Recipe> loader = ServiceLoader.load(Recipe.class);
 							Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
-                                                        Recipe r = clazz.newInstance();
+              Recipe r = clazz.newInstance();
 							r.init(s);
 							System.err.println("!DBG: site["+m+"] recipe["+c+"]");
 							this.ldsites.put(p,r);

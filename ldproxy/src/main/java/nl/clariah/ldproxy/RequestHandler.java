@@ -4,6 +4,9 @@
 
 package nl.clariah.ldproxy;
 
+import nl.clariah.recipe.Recipe;
+
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,12 +20,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
-import javax.imageio.ImageIO;
-
-import nl.clariah.ldproxy.recipe.Recipe;
+import java.util.regex.Pattern;
 
 public class RequestHandler implements Runnable {
 
