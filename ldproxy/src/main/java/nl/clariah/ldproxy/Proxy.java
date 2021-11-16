@@ -18,6 +18,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.ServiceLoader;
 import java.util.regex.Pattern;
@@ -99,9 +100,11 @@ public class Proxy implements Runnable{
 						if (Saxon.hasAttribute(s, "recipe")) {
               String c = Saxon.xpath2string(s, "@recipe");
 							ServiceLoader<Recipe> loader = ServiceLoader.load(Recipe.class);
-							Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
-              Recipe r = clazz.newInstance();
-							r.init(s);
+							Optional<Recipe> clazz = loader.findFirst();
+							// clazz.
+							// Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
+              // Recipe r = clazz.newInstance();
+							// r.init(s);
 							System.err.println("!DBG: site["+m+"] recipe["+c+"]");
 							this.ldsites.put(p,r);
 						} else {
