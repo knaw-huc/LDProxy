@@ -89,7 +89,7 @@ public class Proxy implements Runnable{
 
 			// Load LD proxy sites
 			try {
-				File config = new File("src/resources/ldproxy-config.xml");
+				File config = new File("/Users/menzowi/Documents/Projects/LDProxy.meindert/ldproxy/src/resources/ldproxy-config.xml");
 				XdmNode conf = Saxon.buildDocument(new StreamSource(config));
 
 				for (XdmItem s:Saxon.xpathList(conf, "/LDProxy/site")) {
@@ -98,14 +98,12 @@ public class Proxy implements Runnable{
 						Pattern p = Pattern.compile(m);
 
 						if (Saxon.hasAttribute(s, "recipe")) {
-              String c = Saxon.xpath2string(s, "@recipe");
+              String c =                                Saxon.xpath2string(s, "@recipe");
 							ServiceLoader<Recipe> loader = ServiceLoader.load(Recipe.class);
 							Optional<Recipe> clazz = loader.findFirst();
-							// clazz.
-							// Class<Recipe> clazz = (Class<Recipe>) Class.forName(c);
-              // Recipe r = clazz.newInstance();
-							// r.init(s);
-							System.err.println("!DBG: site["+m+"] recipe["+c+"]");
+							Recipe r = clazz.get();
+							r.init(s);
+							System.err.println("!DBG: site["+m+"] recipe["+c+"]["+r.getClass().getCanonicalName()+"]");
 							this.ldsites.put(p,r);
 						} else {
 							System.err.println("!ERR: site["+m+"] misses a recipe attribute!");
