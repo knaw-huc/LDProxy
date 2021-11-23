@@ -3,5 +3,5 @@ module nl.clariah.recipe {
   requires SaxonUtils;
   exports nl.clariah.recipe;
   provides nl.clariah.recipe.Recipe
-      with nl.clariah.recipe.Redirect;
+      with nl.clariah.recipe.Redirect, nl.clariah.recipe.Cat;
 }
