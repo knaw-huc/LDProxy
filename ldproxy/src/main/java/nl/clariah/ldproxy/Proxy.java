@@ -98,9 +98,12 @@ public class Proxy implements Runnable{
 						Pattern p = Pattern.compile(m);
 
 						if (Saxon.hasAttribute(s, "recipe")) {
-              String c =                                Saxon.xpath2string(s, "@recipe");
+							String c = Saxon.xpath2string(s, "@recipe");
 							ServiceLoader<Recipe> loader = ServiceLoader.load(Recipe.class);
-							Optional<Recipe> clazz = loader.findFirst();
+							Optional<Recipe> clazz = loader.stream()
+									.filter(recipeProvider -> recipeProvider.type().getName().equals(c))
+									.map(ServiceLoader.Provider::get)
+									.findFirst();
 							Recipe r = clazz.get();
 							r.init(s);
 							System.err.println("!DBG: site["+m+"] recipe["+c+"]["+r.getClass().getCanonicalName()+"]");
